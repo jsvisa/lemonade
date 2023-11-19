@@ -1,6 +1,8 @@
 package server
 
 import (
+	"crypto/rand"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/rpc"
@@ -16,7 +18,6 @@ var connCh = make(chan net.Conn, 1)
 var LineEndingOpt string
 
 func Serve(c *lemon.CLI, logger log.Logger) error {
-	port := c.Port
 	allowIP := c.Allow
 	LineEndingOpt = c.LineEnding
 	ra, err := iprange.New(allowIP)
@@ -24,11 +25,23 @@ func Serve(c *lemon.CLI, logger log.Logger) error {
 		return err
 	}
 
-	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return err
+	var l net.Listener
+	address := fmt.Sprintf(":%d", c.Port)
+	if c.OverTLS {
+		cert, err := tls.LoadX509KeyPair(c.ServerTLSPem, c.ServerTLSKey)
+		if err != nil {
+			return err
+		}
+		config := tls.Config{Certificates: []tls.Certificate{cert}}
+		config.Rand = rand.Reader
+		l, err = tls.Listen("tcp", address, &config)
+	} else {
+		addr, err := net.ResolveTCPAddr("tcp", address)
+		if err != nil {
+			return err
+		}
+		l, err = net.ListenTCP("tcp", addr)
 	}
-	l, err := net.ListenTCP("tcp", addr)
 	if err != nil {
 		return err
 	}
