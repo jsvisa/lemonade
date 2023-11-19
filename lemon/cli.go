@@ -40,6 +40,7 @@ type CLI struct {
 	Port           int
 	Allow          string
 	Host           string
+	Token          string
 	TransLoopback  bool
 	TransLocalfile bool
 	LineEnding     string
