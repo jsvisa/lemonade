@@ -28,6 +28,7 @@ func Serve(c *lemon.CLI, logger log.Logger) error {
 	var l net.Listener
 	address := fmt.Sprintf(":%d", c.Port)
 	if c.OverTLS {
+		logger.Info("Start TLS Server")
 		cert, err := tls.LoadX509KeyPair(c.ServerTLSPem, c.ServerTLSKey)
 		if err != nil {
 			return err
@@ -36,6 +37,7 @@ func Serve(c *lemon.CLI, logger log.Logger) error {
 		config.Rand = rand.Reader
 		l, err = tls.Listen("tcp", address, &config)
 	} else {
+		logger.Info("Start TCP Server")
 		addr, err := net.ResolveTCPAddr("tcp", address)
 		if err != nil {
 			return err
