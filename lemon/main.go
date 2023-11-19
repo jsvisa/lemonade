@@ -19,6 +19,7 @@ Options:
   --line-ending               Convert Line Ending (CR/CRLF)
   --allow="0.0.0.0/0,::/0"    Allow IP Range                [Server only]
   --host="localhost"          Destination hostname          [Client only]
+  --token="0123456789abcdef"  Encryption Token
   --no-fallback-messages      Do not show fallback messages [Client only]
   --trans-loopback=true       Translate loopback address    [open subcommand only]
   --trans-localfile=true      Translate local file path     [open subcommand only]
