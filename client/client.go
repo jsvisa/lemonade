@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -19,6 +20,9 @@ import (
 type client struct {
 	host               string
 	port               int
+	overTLS            bool
+	tlsKey             string
+	tlsPem             string
 	lineEnding         string
 	noFallbackMessages bool
 	logger             log.Logger
@@ -29,6 +33,9 @@ func New(c *lemon.CLI, logger log.Logger) *client {
 	return &client{
 		host:               c.Host,
 		port:               c.Port,
+		overTLS:            c.OverTLS,
+		tlsKey:             c.ClientTLSKey,
+		tlsPem:             c.ClientTLSPem,
 		lineEnding:         c.LineEnding,
 		noFallbackMessages: c.NoFallbackMessages,
 		logger:             logger,
@@ -117,7 +124,22 @@ func (c *client) Copy(text string) error {
 }
 
 func (c *client) withRPCClient(f func(*rpc.Client) error) error {
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", c.host, c.port), c.timeout)
+	var (
+		conn net.Conn
+		err  error
+	)
+	address := fmt.Sprintf("%s:%d", c.host, c.port)
+	if c.overTLS {
+		cert, err := tls.LoadX509KeyPair(c.tlsPem, c.tlsKey)
+		if err != nil {
+			c.logger.Error("Loading keys failed" + err.Error())
+			return err
+		}
+		config := tls.Config{Certificates: []tls.Certificate{cert}, InsecureSkipVerify: false}
+		conn, err = tls.DialWithDialer(&net.Dialer{Timeout: c.timeout}, "tcp", address, &config)
+	} else {
+		conn, err = net.DialTimeout("tcp", address, c.timeout)
+	}
 	if err != nil {
 		if !c.noFallbackMessages {
 			c.logger.Error(err.Error())
