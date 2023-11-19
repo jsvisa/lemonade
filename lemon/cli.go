@@ -45,6 +45,11 @@ type CLI struct {
 	LineEnding     string
 	LogLevel       int
 	Timeout        time.Duration
+	OverTLS        bool
+	ClientTLSKey   string
+	ClientTLSPem   string
+	ServerTLSKey   string
+	ServerTLSPem   string
 
 	Help bool
 

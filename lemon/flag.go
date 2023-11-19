@@ -79,6 +79,11 @@ func (c *CLI) flags() *flag.FlagSet {
 	flags.BoolVar(&c.NoFallbackMessages, "no-fallback-messages", false, "Do not show fallback messages")
 	flags.DurationVar(&c.Timeout, "rpc-timeout", 100*time.Millisecond, "RPC timeout")
 	flags.IntVar(&c.LogLevel, "log-level", 1, "Log level")
+	flags.BoolVar(&c.OverTLS, "over-tls", false, "Connection over TLS")
+	flags.StringVar(&c.ClientTLSKey, "client-tls-key", "", "Client TLS key file path")
+	flags.StringVar(&c.ClientTLSPem, "client-tls-pem", "", "Client TLS pem file path")
+	flags.StringVar(&c.ServerTLSKey, "server-tls-key", "", "Server TLS key file path")
+	flags.StringVar(&c.ServerTLSPem, "server-tls-pem", "", "Server TLS pem file path")
 	return flags
 }
 
