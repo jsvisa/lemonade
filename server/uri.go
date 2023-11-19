@@ -6,14 +6,11 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/lemonade-command/lemonade/lemon"
 	"github.com/lemonade-command/lemonade/param"
 	"github.com/skratchdot/open-golang/open"
 )
 
-type URI struct {
-	token string
-}
+type URI struct{}
 
 func (u *URI) Open(param *param.OpenParam, _ *struct{}) error {
 	conn := <-connCh
@@ -21,11 +18,7 @@ func (u *URI) Open(param *param.OpenParam, _ *struct{}) error {
 	if param.TransLoopback {
 		uri = u.translateLoopbackIP(param.URI, conn)
 	}
-	encoded, err := lemon.DecryptMessage(u.token, uri)
-	if err != nil {
-		return err
-	}
-	return open.Run(encoded)
+	return open.Run(uri)
 }
 
 func IPv6RemoveBrackets(ip string) string {

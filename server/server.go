@@ -71,7 +71,7 @@ func ServeLocal(logger log.Logger) (int, error) {
 }
 
 func register(token string) {
-	uri := &URI{token: token}
+	uri := &URI{}
 	rpc.Register(uri)
 	clipboard := &Clipboard{token: token}
 	rpc.Register(clipboard)
