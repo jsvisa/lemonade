@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"regexp"
 	"time"
 
@@ -128,6 +130,12 @@ func (c *CLI) parse(args []string, skip bool) error {
 		}
 		c.DataSource = string(b)
 	}
+
+	// Expand environment variables
+	c.ClientTLSKey = filepath.Clean(os.ExpandEnv(c.ClientTLSKey))
+	c.ClientTLSPem = filepath.Clean(os.ExpandEnv(c.ClientTLSPem))
+	c.ServerTLSKey = filepath.Clean(os.ExpandEnv(c.ServerTLSKey))
+	c.ServerTLSPem = filepath.Clean(os.ExpandEnv(c.ServerTLSPem))
 
 	return nil
 }
