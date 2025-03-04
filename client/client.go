@@ -19,6 +19,7 @@ import (
 type client struct {
 	host               string
 	port               int
+	token              string
 	lineEnding         string
 	noFallbackMessages bool
 	logger             log.Logger
@@ -29,6 +30,7 @@ func New(c *lemon.CLI, logger log.Logger) *client {
 	return &client{
 		host:               c.Host,
 		port:               c.Port,
+		token:              c.Token,
 		lineEnding:         c.LineEnding,
 		noFallbackMessages: c.NoFallbackMessages,
 		logger:             logger,
@@ -105,12 +107,20 @@ func (c *client) Paste() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	resp, err = lemon.DecryptMessage(c.token, resp)
+	if err != nil {
+		return "", err
+	}
 
 	return lemon.ConvertLineEnding(resp, c.lineEnding), nil
 }
 
 func (c *client) Copy(text string) error {
 	c.logger.Debug("Sending: " + text)
+	text, err := lemon.EncryptMessage(c.token, text)
+	if err != nil {
+		return err
+	}
 	return c.withRPCClient(func(rc *rpc.Client) error {
 		return rc.Call("Clipboard.Copy", text, dummy)
 	})

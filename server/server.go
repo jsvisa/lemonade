@@ -16,6 +16,7 @@ var connCh = make(chan net.Conn, 1)
 var LineEndingOpt string
 
 func Serve(c *lemon.CLI, logger log.Logger) error {
+	register(c.Token)
 	port := c.Port
 	allowIP := c.Allow
 	LineEndingOpt = c.LineEnding
@@ -69,9 +70,9 @@ func ServeLocal(logger log.Logger) (int, error) {
 	return l.Addr().(*net.TCPAddr).Port, nil
 }
 
-func init() {
+func register(token string) {
 	uri := &URI{}
 	rpc.Register(uri)
-	clipboard := &Clipboard{}
+	clipboard := &Clipboard{token: token}
 	rpc.Register(clipboard)
 }

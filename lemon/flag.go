@@ -72,6 +72,7 @@ func (c *CLI) flags() *flag.FlagSet {
 	flags.IntVar(&c.Port, "port", 2489, "TCP port number")
 	flags.StringVar(&c.Allow, "allow", "0.0.0.0/0,::/0", "Allow IP range")
 	flags.StringVar(&c.Host, "host", "localhost", "Destination host name.")
+	flags.StringVar(&c.Token, "token", "0123456789abcdef", "Encrypt/Decrypto key")
 	flags.BoolVar(&c.Help, "help", false, "Show this message")
 	flags.BoolVar(&c.TransLoopback, "trans-loopback", true, "Translate loopback address")
 	flags.BoolVar(&c.TransLocalfile, "trans-localfile", true, "Translate local file")
@@ -122,6 +123,11 @@ func (c *CLI) parse(args []string, skip bool) error {
 			return err
 		}
 		c.DataSource = string(b)
+	}
+	if len(c.Token) > 16 {
+		c.Token = c.Token[:16]
+	} else if len(c.Token) < 16 {
+		c.Token = fmt.Sprintf("%-16s", c.Token)
 	}
 
 	return nil
