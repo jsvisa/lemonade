@@ -1,9 +1,10 @@
 package lemon
 
 import (
+	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"regexp"
 	"time"
 
@@ -64,7 +65,7 @@ func (c *CLI) getCommandType(args []string) (s CommandStyle, err error) {
 		}
 	}
 
-	return s, fmt.Errorf("Unknown SubCommand\n\n" + Usage)
+	return s, errors.New("Unknown SubCommand\n\n" + Usage)
 }
 
 func (c *CLI) flags() *flag.FlagSet {
@@ -73,6 +74,7 @@ func (c *CLI) flags() *flag.FlagSet {
 	flags.StringVar(&c.Allow, "allow", "0.0.0.0/0,::/0", "Allow IP range")
 	flags.StringVar(&c.Host, "host", "localhost", "Destination host name.")
 	flags.StringVar(&c.Token, "token", "0123456789abcdef", "Encrypt/Decrypto key")
+	flags.BoolVar(&c.AllowReadClipboard, "allow-read-clipboard", false, "Allow client to read the host's system clipboard")
 	flags.BoolVar(&c.Help, "help", false, "Show this message")
 	flags.BoolVar(&c.TransLoopback, "trans-loopback", true, "Translate loopback address")
 	flags.BoolVar(&c.TransLocalfile, "trans-localfile", true, "Translate local file")
@@ -118,7 +120,7 @@ func (c *CLI) parse(args []string, skip bool) error {
 	if arg != "" {
 		c.DataSource = arg
 	} else {
-		b, err := ioutil.ReadAll(c.In)
+		b, err := io.ReadAll(c.In)
 		if err != nil {
 			return err
 		}

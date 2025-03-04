@@ -6,7 +6,8 @@ import (
 )
 
 type Clipboard struct {
-	token string
+	token     string
+	allowRead bool
 }
 
 func (c *Clipboard) Copy(text string, _ *struct{}) error {
@@ -22,11 +23,17 @@ func (c *Clipboard) Copy(text string, _ *struct{}) error {
 
 func (c *Clipboard) Paste(_ struct{}, resp *string) error {
 	<-connCh
-	t, err := clipboard.ReadAll()
-	t, err = lemon.EncryptMessage(c.token, t)
+	var (
+		text string
+		err  error
+	)
+	if c.allowRead {
+		text, err = clipboard.ReadAll()
+	}
+	text, err = lemon.EncryptMessage(c.token, text)
 	if err != nil {
 		return err
 	}
-	*resp = t
+	*resp = text
 	return err
 }

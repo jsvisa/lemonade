@@ -37,15 +37,16 @@ type CLI struct {
 	DataSource string
 
 	// options
-	Port           int
-	Allow          string
-	Host           string
-	Token          string
-	TransLoopback  bool
-	TransLocalfile bool
-	LineEnding     string
-	LogLevel       int
-	Timeout        time.Duration
+	Port               int
+	Allow              string
+	Host               string
+	Token              string
+	AllowReadClipboard bool
+	TransLoopback      bool
+	TransLocalfile     bool
+	LineEnding         string
+	LogLevel           int
+	Timeout            time.Duration
 
 	Help bool
 
