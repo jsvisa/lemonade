@@ -7,7 +7,8 @@ import (
 
 type Clipboard struct {
 	token     string
-	allowRead bool
+	allowRead bool // Allow reading from clipboard, else return the last write
+	lastWrite string
 }
 
 func (c *Clipboard) Copy(text string, _ *struct{}) error {
@@ -18,22 +19,24 @@ func (c *Clipboard) Copy(text string, _ *struct{}) error {
 	if err != nil {
 		return err
 	}
+	c.lastWrite = text
 	return clipboard.WriteAll(lemon.ConvertLineEnding(text, LineEndingOpt))
 }
 
 func (c *Clipboard) Paste(_ struct{}, resp *string) error {
 	<-connCh
-	var (
-		text string
-		err  error
-	)
 	if c.allowRead {
-		text, err = clipboard.ReadAll()
+		text, err := clipboard.ReadAll()
+		if err != nil {
+			return err
+		}
+		text, err = lemon.EncryptMessage(c.token, text)
+		if err != nil {
+			return err
+		}
+		*resp = text
+	} else {
+		*resp = c.lastWrite
 	}
-	text, err = lemon.EncryptMessage(c.token, text)
-	if err != nil {
-		return err
-	}
-	*resp = text
-	return err
+	return nil
 }
